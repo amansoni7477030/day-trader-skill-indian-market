@@ -1,0 +1,9 @@
+{
+ "timeseries": {
+  "result": null,
+  "error": {
+   "code": "Not Found",
+   "description": "No fundamentals data found for symbol: NODATA.NS"
+  }
+ }
+}

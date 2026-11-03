@@ -1,0 +1,31 @@
+{
+  "_note": "SYNTHETIC / ILLUSTRATIVE: not real market data, not a recommendation. Five large Nifty 50 names; the weights are made up, not real index weights.",
+  "source": "ILLUSTRATIVE raw weights, not renormalised",
+  "weights": [
+    {
+      "ticker": "HDFCBANK",
+      "name": "HDFC Bank",
+      "weight": 12.5
+    },
+    {
+      "ticker": "RELIANCE",
+      "name": "Reliance Industries",
+      "weight": 8.5
+    },
+    {
+      "ticker": "INFY",
+      "name": "Infosys",
+      "weight": 5.0
+    },
+    {
+      "ticker": "TCS",
+      "name": "Tata Consultancy Services",
+      "weight": 4.0
+    },
+    {
+      "ticker": "ITC",
+      "name": "ITC",
+      "weight": 3.0
+    }
+  ]
+}

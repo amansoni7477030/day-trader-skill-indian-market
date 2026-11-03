@@ -1,0 +1,12 @@
+{
+  "_note": "SYNTHETIC / ILLUSTRATIVE: not real market data, not a recommendation. Made-up prices for the example.",
+  "as_of": "2026-10-19T04:10:00Z",
+  "source": "illustrative",
+  "prices": {
+    "RELIANCE": 1416.3,
+    "HDFCBANK": 950.4,
+    "TCS": 3150.3,
+    "INFY": 1580.1,
+    "ITC": 410.55
+  }
+}

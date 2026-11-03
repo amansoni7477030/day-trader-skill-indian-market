@@ -8,13 +8,27 @@ from _load import ROOT
 # v2, the day-trading pack: the eleven folders the reel's repo card shows
 SKILLS = ["trader-scanner", "trader-news", "trader-entry", "trader-exit", "trader-timemachine",
           "trader-risk", "trader-budget", "trader-broker", "trader-alerts", "trader-analyst",
-          "trader-pelosi"]
-ABOUT = ("11 Claude skills for day trading: scan thousands of charts, track breaking news, time every "
-         "entry and exit, and replay every outcome before you risk a dollar.")
+          "trader-deals"]
+ABOUT = ("11 Claude skills for day trading the Indian market (NSE): scan thousands of charts, track breaking "
+         "news, time every entry and exit, and replay every outcome before you risk a rupee.")
 # skills on the way to an order carry the safety block
 ORDER_PATH = ["trader-scanner", "trader-entry", "trader-exit", "trader-timemachine", "trader-budget",
-              "trader-pelosi", "trader-risk", "trader-broker", "trader-alerts"]
+              "trader-deals", "trader-risk", "trader-broker", "trader-alerts"]
 V1_ONLY = ["trader-copycat", "trader-screener", "trader-tax", "trader-rebalance"]
+# working folders that .gitignore keeps out of git: the checks below skip them
+LOCAL_ONLY = (".venv", "venv", "trader", "__pycache__")
+REPO_URL = "https://github.com/amansoni7477030/day-trader-skill-indian-market"
+AUTHOR = {"name": "Aman Soni", "url": "https://toolrux.com"}
+
+
+def read_json(*parts):
+    with open(os.path.join(ROOT, *parts), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def read_text(*parts):
+    with open(os.path.join(ROOT, *parts), encoding="utf-8") as fh:
+        return fh.read()
 
 
 def frontmatter(path):
@@ -26,7 +40,7 @@ def frontmatter(path):
 
 def every_text_file():
     for base, dirs, files in os.walk(ROOT):
-        dirs[:] = [d for d in dirs if d not in (".git", "__pycache__")]
+        dirs[:] = [d for d in dirs if d != ".git" and d not in LOCAL_ONLY]
         for f in files:
             if f.endswith((".md", ".py", ".json", ".csv", ".txt", ".xml")) or f == "LICENSE":
                 yield os.path.join(base, f)
@@ -39,8 +53,8 @@ class Repo(unittest.TestCase):
         self.assertEqual(found, sorted(SKILLS))
 
     def test_root_matches_the_reel(self):
-        root = sorted(d for d in os.listdir(ROOT) if not d.startswith(".git"))
-        self.assertEqual(root, sorted([".claude-plugin", "LICENSE", "README.md", "tests"] + SKILLS))
+        root = sorted(d for d in os.listdir(ROOT) if not d.startswith(".git") and d not in LOCAL_ONLY)
+        self.assertEqual(root, sorted([".claude-plugin", "LICENSE", "README.md", "requirements.txt", "tests"] + SKILLS))
 
     def test_frontmatter_name_and_description(self):
         for s in SKILLS:
@@ -58,13 +72,11 @@ class Repo(unittest.TestCase):
             self.assertIn("yes", low, s)
 
     def test_plugin_manifest_points_at_the_root_skills(self):
-        with open(os.path.join(ROOT, ".claude-plugin", "plugin.json")) as fh:
-            plugin = json.load(fh)
+        plugin = read_json(".claude-plugin", "plugin.json")
         self.assertEqual(plugin["name"], "day-trader-skill")
         self.assertEqual(plugin["skills"], "./")
         self.assertEqual(plugin["description"], ABOUT)
-        with open(os.path.join(ROOT, ".claude-plugin", "marketplace.json")) as fh:
-            market = json.load(fh)
+        market = read_json(".claude-plugin", "marketplace.json")
         self.assertEqual(market["name"], "day-trader-skill")
         self.assertEqual(market["plugins"][0]["name"], "day-trader-skill")
 
@@ -73,8 +85,8 @@ class Repo(unittest.TestCase):
             readme = " ".join(fh.read().split())
         self.assertTrue(readme.startswith("# The Day Trader skill"))
         for line in (ABOUT,
-                     "https://github.com/Jakeschincariol/day-trader-skill install skill",
-                     "/plugin marketplace add Jakeschincariol/day-trader-skill",
+                     "https://github.com/amansoni7477030/day-trader-skill-indian-market install skill",
+                     "/plugin marketplace add amansoni7477030/day-trader-skill-indian-market",
                      "/plugin install day-trader-skill@day-trader-skill",
                      "## Fine print"):
             self.assertIn(line, readme)
@@ -121,7 +133,7 @@ class Repo(unittest.TestCase):
     def test_day_trading_limits_ship_in_the_example_config(self):
         with open(os.path.join(ROOT, "trader-budget", "config.example.json")) as fh:
             cfg = json.load(fh)
-        for k in ("max_loss_per_trade_usd", "max_daily_loss_usd", "max_trades_per_day",
+        for k in ("max_loss_per_trade_inr", "max_daily_loss_inr", "max_trades_per_day",
                   "min_reward_risk", "require_stop", "no_entries_after", "flat_by"):
             self.assertIn(k, cfg, k)
         self.assertIs(cfg["require_stop"], True)
@@ -132,7 +144,61 @@ class Repo(unittest.TestCase):
         with open(os.path.join(ROOT, "trader-budget", "config.example.json")) as fh:
             cfg = json.load(fh)
         self.assertIs(cfg["paper"], True)
+        self.assertEqual(cfg["budget"], 100000)  # the paper account starts with one lakh rupees
+        self.assertNotIn("broker", cfg)
         self.assertIs(cfg.get("allow_options", False), False)
+
+    def test_author_and_website_are_aman_soni_and_toolrux(self):
+        plugin = read_json(".claude-plugin", "plugin.json")
+        market = read_json(".claude-plugin", "marketplace.json")
+        self.assertEqual(plugin["author"], AUTHOR)
+        self.assertEqual(market["owner"], AUTHOR)
+        self.assertEqual(plugin["homepage"], REPO_URL)
+        self.assertEqual(plugin["repository"], REPO_URL)
+        self.assertEqual(plugin["license"], "MIT")
+        self.assertIn("paper-trading", plugin["keywords"])
+        self.assertNotIn("dry-run", plugin["keywords"])
+
+    def test_license_keeps_the_original_notice(self):
+        text = read_text("LICENSE")
+        self.assertTrue(text.startswith("MIT License"))
+        self.assertIn("Jake Schincariol", text)  # the MIT license requires the original notice to stay
+
+    def test_requirements_list_only_curl_cffi(self):
+        lines = [ln.strip() for ln in read_text("requirements.txt").splitlines()
+                 if ln.strip() and not ln.strip().startswith("#")]
+        self.assertEqual(len(lines), 1, lines)
+        self.assertRegex(lines[0], r"^curl_cffi\s*(>=|==|~=)\s*\d")
+
+    def test_gitignore_keeps_local_files_out_of_git(self):
+        lines = [ln.strip() for ln in read_text(".gitignore").splitlines()
+                 if ln.strip() and not ln.strip().startswith("#")]
+        for pattern in (".venv/", "__pycache__/", "/trader/", ".env"):
+            self.assertIn(pattern, lines, pattern)
+
+    def test_no_tool_reads_the_environment_so_there_is_no_env_example(self):
+        # no key, token or password anywhere: if a tool ever needs one, add .env.example and say so in the README
+        for s in SKILLS:
+            folder = os.path.join(ROOT, s)
+            for f in os.listdir(folder):
+                if f.endswith(".py"):
+                    src = read_text(s, f)
+                    for bad in ("os.environ", "os.getenv", "dotenv"):
+                        self.assertNotIn(bad, src, "%s/%s" % (s, f))
+
+    def test_readme_is_the_paper_trading_edition_with_architecture_diagrams(self):
+        readme = read_text("README.md")
+        low = " ".join(readme.lower().split())
+        for text in ("aman soni", "https://toolrux.com", "jake schincariol", "paper trading only",
+                     "\u20b91,00,000", "python3 -m venv .venv", "pip install -r requirements.txt"):
+            self.assertIn(text, low, text)
+        for gone in ("Kite", "Allow once", "Needs approval", "Always allow", "static IP", "Going live"):
+            self.assertNotIn(gone, readme, gone)
+        blocks = re.findall(r"```mermaid\n(.*?)\n```", readme, re.S)
+        self.assertEqual(readme.count("```mermaid"), len(blocks))
+        kinds = [b.split(None, 1)[0] for b in blocks]
+        for kind in ("flowchart", "sequenceDiagram", "stateDiagram-v2", "gantt"):
+            self.assertIn(kind, kinds)
 
 
 if __name__ == "__main__":

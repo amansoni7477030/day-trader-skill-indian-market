@@ -1,0 +1,16 @@
+# Virtual environment and Python bytecode
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# The tools write their working files (plans, orders, the paper account) to ./trader/
+/trader/
+
+# Secrets: nothing in this pack reads one, but never commit one
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db

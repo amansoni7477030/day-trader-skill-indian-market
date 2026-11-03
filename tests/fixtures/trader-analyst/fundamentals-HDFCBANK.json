@@ -1,0 +1,323 @@
+{
+ "timeseries": {
+  "result": [
+   {
+    "meta": {
+     "symbol": [
+      "HDFCBANK.NS"
+     ],
+     "type": [
+      "quarterlyTotalRevenue"
+     ]
+    },
+    "timestamp": [
+     1727654400,
+     1735603200,
+     1743379200,
+     1751241600,
+     1759190400,
+     1767139200,
+     1774915200,
+     1782777600
+    ],
+    "quarterlyTotalRevenue": [
+     {
+      "dataId": 6000,
+      "asOfDate": "2024-09-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 800000000000.0,
+       "fmt": "800B"
+      }
+     },
+     {
+      "dataId": 6001,
+      "asOfDate": "2024-12-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 820000000000.0,
+       "fmt": "820B"
+      }
+     },
+     {
+      "dataId": 6002,
+      "asOfDate": "2025-03-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 850000000000.0,
+       "fmt": "850B"
+      }
+     },
+     {
+      "dataId": 6003,
+      "asOfDate": "2025-06-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 840000000000.0,
+       "fmt": "840B"
+      }
+     },
+     {
+      "dataId": 6004,
+      "asOfDate": "2025-09-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 880000000000.0,
+       "fmt": "880B"
+      }
+     },
+     {
+      "dataId": 6005,
+      "asOfDate": "2025-12-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 900000000000.0,
+       "fmt": "900B"
+      }
+     },
+     {
+      "dataId": 6006,
+      "asOfDate": "2026-03-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 930000000000.0,
+       "fmt": "930B"
+      }
+     },
+     {
+      "dataId": 6007,
+      "asOfDate": "2026-06-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 950000000000.0,
+       "fmt": "950B"
+      }
+     }
+    ]
+   },
+   {
+    "meta": {
+     "symbol": [
+      "HDFCBANK.NS"
+     ],
+     "type": [
+      "quarterlyOperatingIncome"
+     ]
+    }
+   },
+   {
+    "meta": {
+     "symbol": [
+      "HDFCBANK.NS"
+     ],
+     "type": [
+      "quarterlyNetIncome"
+     ]
+    },
+    "timestamp": [
+     1727654400,
+     1735603200,
+     1743379200,
+     1751241600,
+     1759190400,
+     1767139200,
+     1774915200,
+     1782777600
+    ],
+    "quarterlyNetIncome": [
+     {
+      "dataId": 7000,
+      "asOfDate": "2024-09-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 160000000000.0,
+       "fmt": "160B"
+      }
+     },
+     {
+      "dataId": 7001,
+      "asOfDate": "2024-12-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 165000000000.0,
+       "fmt": "165B"
+      }
+     },
+     {
+      "dataId": 7002,
+      "asOfDate": "2025-03-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 170000000000.0,
+       "fmt": "170B"
+      }
+     },
+     {
+      "dataId": 7003,
+      "asOfDate": "2025-06-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 172000000000.0,
+       "fmt": "172B"
+      }
+     },
+     {
+      "dataId": 7004,
+      "asOfDate": "2025-09-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 180000000000.0,
+       "fmt": "180B"
+      }
+     },
+     {
+      "dataId": 7005,
+      "asOfDate": "2025-12-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 185000000000.0,
+       "fmt": "185B"
+      }
+     },
+     {
+      "dataId": 7006,
+      "asOfDate": "2026-03-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 190000000000.0,
+       "fmt": "190B"
+      }
+     },
+     {
+      "dataId": 7007,
+      "asOfDate": "2026-06-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 196000000000.0,
+       "fmt": "196B"
+      }
+     }
+    ]
+   },
+   {
+    "meta": {
+     "symbol": [
+      "HDFCBANK.NS"
+     ],
+     "type": [
+      "quarterlyDilutedEPS"
+     ]
+    },
+    "timestamp": [
+     1727654400,
+     1735603200,
+     1743379200,
+     1751241600,
+     1759190400,
+     1767139200,
+     1774915200,
+     1782777600
+    ],
+    "quarterlyDilutedEPS": [
+     {
+      "dataId": 8000,
+      "asOfDate": "2024-09-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 20.9,
+       "fmt": "20.90"
+      }
+     },
+     {
+      "dataId": 8001,
+      "asOfDate": "2024-12-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 21.5,
+       "fmt": "21.50"
+      }
+     },
+     {
+      "dataId": 8002,
+      "asOfDate": "2025-03-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 22.1,
+       "fmt": "22.10"
+      }
+     },
+     {
+      "dataId": 8003,
+      "asOfDate": "2025-06-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 22.4,
+       "fmt": "22.40"
+      }
+     },
+     {
+      "dataId": 8004,
+      "asOfDate": "2025-09-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 23.4,
+       "fmt": "23.40"
+      }
+     },
+     {
+      "dataId": 8005,
+      "asOfDate": "2025-12-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 24.0,
+       "fmt": "24.00"
+      }
+     },
+     {
+      "dataId": 8006,
+      "asOfDate": "2026-03-31",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 24.7,
+       "fmt": "24.70"
+      }
+     },
+     {
+      "dataId": 8007,
+      "asOfDate": "2026-06-30",
+      "periodType": "3M",
+      "currencyCode": "INR",
+      "reportedValue": {
+       "raw": 25.4,
+       "fmt": "25.40"
+      }
+     }
+    ]
+   }
+  ],
+  "error": null
+ }
+}

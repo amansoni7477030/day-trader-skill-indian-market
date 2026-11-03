@@ -1,11 +1,11 @@
 {
-  "source": "Berkshire Hathaway Inc 13F-HR, Q2 2026 (period 2026-06-30, filed 2026-08-14, accession 0001193125-26-352200), top 5 renormalised",
-  "as_of": "2026-06-30",
+  "source": "ILLUSTRATIVE five-name weights file for large Nifty 50 stocks: an example of the format only. Not a recommendation, not real index weights.",
+  "as_of": "illustrative",
   "weights": [
-    {"ticker": "AAPL", "name": "Apple", "weight": 30.67, "pct_of_13f": 22.04},
-    {"ticker": "AXP", "name": "American Express", "weight": 23.85, "pct_of_13f": 17.14},
-    {"ticker": "GOOGL", "name": "Alphabet", "weight": 17.56, "pct_of_13f": 12.62},
-    {"ticker": "KO", "name": "Coca-Cola", "weight": 15.11, "pct_of_13f": 10.86},
-    {"ticker": "BAC", "name": "Bank of America", "weight": 12.80, "pct_of_13f": 9.20}
+    {"ticker": "HDFCBANK", "name": "HDFC Bank", "weight": 37.88, "illustrative_pct": 12.5},
+    {"ticker": "RELIANCE", "name": "Reliance Industries", "weight": 25.76, "illustrative_pct": 8.5},
+    {"ticker": "INFY", "name": "Infosys", "weight": 15.15, "illustrative_pct": 5.0},
+    {"ticker": "TCS", "name": "Tata Consultancy Services", "weight": 12.12, "illustrative_pct": 4.0},
+    {"ticker": "ITC", "name": "ITC", "weight": 9.09, "illustrative_pct": 3.0}
   ]
 }

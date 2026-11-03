@@ -1,0 +1,4 @@
+# The only third-party package. NSE and Yahoo block plain Python HTTP clients, so every
+# download goes through curl_cffi (Chrome's TLS fingerprint plus browser headers).
+# Current releases need Python 3.10 or newer.
+curl_cffi>=0.13,<1
