@@ -22,10 +22,10 @@ argument-hint: "[NSE symbol] [price]"
 
 Price Alerts watches the numbers so the user does not have to stare at a
 chart. An alert is information, never an order: when a stop alert rings,
-nothing is sold by this skill. India has no bracket orders, and in paper
-trading nothing sits at a broker at all: a stop-loss and a target are only a
-plan, so these alerts are the only watchers. When one rings, the user records
-the paper exit through trader-broker. They matter more here, not less: an
+nothing is sold by this skill. India has no bracket orders, and nothing sits
+at a broker here at all: a stop-loss and a target are only a plan, so these
+alerts are the only watchers. When one rings, the exit is recorded through
+trader-broker. They matter more here, not less: an
 alert tells the user what happened and when it is time to act or to be flat.
 This is education and tooling, not financial advice.
 
@@ -155,16 +155,16 @@ names them:
    rules and rings each alert once. A check reads the latest delayed quote;
    it is not a live feed, and a price can pass a level between two checks.
 3. Tell the user what rang in one line each. A stop alert means the price
-   reached the stop level: in paper trading nothing sold by itself, so check
-   the paper portfolio and say plainly that the position is still open until
-   the exit is recorded. A target alert means the same for the target. Either
-   way the open position needs an exit ticket (trader-broker `flatten`, or the
-   stop and target exit tickets), then trader-risk, then the user's yes, and
-   when one exit fills the other leg is skipped (there is no automatic OCO).
-   "Flat by" means close anything still open the same way. Never act for them.
+   reached the stop level: nothing sold by itself, so check the portfolio and
+   say plainly that the position is still open until the exit is recorded. A
+   target alert means the same for the target. Either way the open position
+   needs an exit ticket (trader-broker `flatten`, or the stop and target exit
+   tickets), then trader-risk, then trader-broker records it, and when one exit
+   fills the other leg is skipped (there is no automatic OCO). "Flat by" means
+   close anything still open the same way.
 4. A stock at its lower circuit may not let you sell at all, so a stop can fail
    entirely. An alert that rings at the circuit level is a reason to check the
-   live quote at once: in real trading the exit may not fill.
+   live quote at once: the exit may not fill.
 
 ## Example: the canonical plan
 
@@ -183,7 +183,7 @@ At 3:00 PM:
 
 ```
 ALERT Flat by: it is 15:00 IST (set for 15:00), continuous trading of F&O stocks ends at 15:15. If RELIANCE is still
-open, close it: trader-broker flatten --symbol RELIANCE builds the sell ticket, then trader-risk and your yes.
+open, close it: trader-broker flatten --symbol RELIANCE builds the sell ticket, then trader-risk checks it and trader-broker places it.
 ```
 
 It rings once. Tuesday 2026-10-20 is the Dussehra holiday: the NSE is closed
@@ -194,8 +194,8 @@ watched; with `add --opening-bell`, the bell rings at 9:15.
 
 - An alert is a fact about a price or the clock. Say it as a fact.
 - Never present a quote as live. Free quotes are delayed and unofficial.
-- Never say a stop or target is "in place": in paper trading it is only a plan
-  and an alert until the user records the exit.
+- Never say a stop or target is "in place": it is only a plan and an alert
+  until the exit is recorded.
 - Confirm every new rule back to the user: symbol, type, level, day.
 
 ## What it never does
@@ -206,13 +206,9 @@ live, and never predicts where a price is going.
 ## Safety
 
 - Education and tooling, not financial advice. A PASS is a rules check, not a recommendation.
-- Paper trading only: no broker is connected and nothing in this pack can place a real order. Every
-  trade is a simulation in a paper account that starts with ₹1,00,000.
-- A paper trade is recorded only when two things hold: trader-risk passed that exact order today, and
-  the user typed an explicit yes for that one order in the chat.
-- Long only, no F&O, margin, short selling or leverage unless the config allows it and the user confirms.
-  An MIS (intraday) order is leverage in real trading, so the pack counts it as margin when it costs more
-  than the cash in the paper account.
+- An order is placed only when trader-risk passed that exact order today. A BLOCK is final: fix the order
+  or your rules, never the check.
+- Long only, no F&O, margin, short selling or leverage unless the config allows it. An MIS (intraday)
+  order is leverage, so the pack counts it as margin when it costs more than the cash in the account.
 - No logins, API keys or passwords are used, and none belong in the chat.
-- Intraday gains and losses have tax consequences in India: talk to a chartered accountant if you ever
-  trade for real.
+- Intraday gains and losses have tax consequences in India: talk to a chartered accountant.

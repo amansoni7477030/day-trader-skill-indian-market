@@ -6,7 +6,8 @@ your rules (trader/config.json), your account (trader/portfolio.json),
 prices (trader/prices.json) and what was placed today (trader/state/broker.json).
 Each order gets PASS or BLOCK with the reasons. Orders are checked in file
 order as if each PASS had filled, so buys that are fine one by one but break
-a limit together are caught.
+a limit together are caught. The two exit legs of a bracket (marked exit_group)
+are alternatives: only one fills, so neither uses up the other's shares.
 
     python3 check.py                                 # the trader/ files, writes trader/state/risk.json
     python3 check.py --now "2026-10-19 09:40"        # pin the clock (IST)
@@ -80,7 +81,7 @@ DEFAULTS = {
     "min_order_inr": 100, "max_loss_per_trade_inr": 1000, "max_daily_loss_inr": 3000, "max_trades_per_day": 3,
     "max_orders_per_day": 10, "min_reward_risk": 1.0, "require_stop": True,
     "no_entries_before": "09:30", "no_entries_after": "14:30", "flat_by": "15:00",
-    "tick_size": None, "paper": True, "blocked": [], "allow_options": False, "allow_margin": False,
+    "tick_size": None, "blocked": [], "allow_options": False, "allow_margin": False,
     "allow_short": False,
 }
 # Shared with trader-broker/ticket.py: the fingerprint covers exactly these fields.
@@ -428,9 +429,6 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
     price_times  {SYM: naive UTC time of that price}; None = every price counts as fresh"""
     c = dict(DEFAULTS)
     c.update(cfg or {})
-    if not c.get("paper", True):
-        raise RiskError("this pack trades on paper only (no broker is connected): "
-                        "set \"paper\": true in trader/config.json")
     tick = tick_of(c)
     prices = {str(k).upper(): float(v) for k, v in (prices or {}).items() if _f(v)}
     now_utc = now or parse_now(None)
@@ -541,7 +539,7 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
             info.append("bracket = a plan: the stop-loss and target legs are placed after the entry fills, "
                         "each as its own ticket (no automatic one-cancels-the-other)")
         elif oc:
-            warns.append("advanced order (%s): check every leg before you say yes" % oc)
+            warns.append("advanced order (%s): check every leg before you place it" % oc)
 
         # asset
         if sym and DERIVATIVE.search(sym):
@@ -764,7 +762,6 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
     return {
         "date": today,
         "now_ist": now_ist.strftime("%Y-%m-%d %H:%M"),
-        "paper": bool(c.get("paper", True)),
         "results": results,
         "pass": sum(1 for r in results if r["verdict"] == "PASS"),
         "block": sum(1 for r in results if r["verdict"] == "BLOCK"),
@@ -801,12 +798,12 @@ def report(res):
         for x in r["warnings"]:
             lines.append("        ~ " + x)
     lines.append("")
-    lines.append("%d passed, %d blocked at %s IST. Cash after the passed orders: %s (paper account)."
+    lines.append("%d passed, %d blocked at %s IST. Cash after the passed orders: %s."
                  % (res["pass"], res["block"], res["now_ist"], inr(res["cash_after"])))
     if res["block"]:
-        lines.append("Blocked orders are not recorded as paper trades. Fix the order or your rules, then check again.")
+        lines.append("Blocked orders are not placed. Fix the order or your rules, then check again.")
     else:
-        lines.append("Every order passed. trader-broker still asks you yes or no for each one.")
+        lines.append("Every order passed: trader-broker can place each one.")
     lines.append("Education and tooling, not financial advice.")
     return "\n".join(lines)
 

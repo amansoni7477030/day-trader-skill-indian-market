@@ -206,19 +206,15 @@ stays EXPIRED.
 
 It never places an order, never sizes a position, never sets the stop (that
 is `/trader-exit`), never moves the level after the fact, and never counts a
-bar that has not closed. It never runs `/trader-broker` from a background
-watch: nobody is there to say yes.
+bar that has not closed. It never runs `/trader-broker` itself: it reports the
+trigger and stops.
 
 ## Safety
 
 - Education and tooling, not financial advice. A PASS is a rules check, not a recommendation.
-- Paper trading only: no broker is connected and nothing in this pack can place a real order. Every
-  trade is a simulation in a paper account that starts with ₹1,00,000.
-- A paper trade is recorded only when two things hold: trader-risk passed that exact order today, and
-  the user typed an explicit yes for that one order in the chat.
-- Long only, no F&O, margin, short selling or leverage unless the config allows it and the user confirms.
-  An MIS (intraday) order is leverage in real trading, so the pack counts it as margin when it costs more
-  than the cash in the paper account.
+- An order is placed only when trader-risk passed that exact order today. A BLOCK is final: fix the order
+  or your rules, never the check.
+- Long only, no F&O, margin, short selling or leverage unless the config allows it. An MIS (intraday)
+  order is leverage, so the pack counts it as margin when it costs more than the cash in the account.
 - No logins, API keys or passwords are used, and none belong in the chat.
-- Intraday gains and losses have tax consequences in India: talk to a chartered accountant if you ever
-  trade for real.
+- Intraday gains and losses have tax consequences in India: talk to a chartered accountant.

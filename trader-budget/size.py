@@ -7,7 +7,7 @@ trader-exit) to your budget and your max loss per trade, then writes one
 parts: the entry order, a stop-loss order and a target order. The stop-loss
 and target legs are placed only AFTER the entry fills, each as its own ticket
 (there is no automatic one-cancels-the-other). It never places anything:
-trader-risk checks the order and trader-broker asks you yes or no.
+trader-risk checks the order and trader-broker places it.
 
     python3 size.py                                  # trader/plan.json + trader/config.json
     python3 size.py --write                          # write trader/orders.json
@@ -91,7 +91,6 @@ DEFAULTS = {
     "flat_by": "15:00",
     "tick_size": None,
     "fractional": False,
-    "paper": True,
     "blocked": [],
     "allow_options": False,
     "allow_margin": False,
@@ -193,9 +192,6 @@ def load_config(path):
     cfg = dict(DEFAULTS)
     if path and os.path.exists(path):
         cfg.update(read_json(path, "config"))
-    if not cfg.get("paper", True):
-        raise SizeError("this pack trades on paper only (no broker is connected): "
-                        "set \"paper\": true in trader/config.json")
     return cfg
 
 
@@ -655,7 +651,7 @@ def plan_report(s, order, notes=()):
                      "trader-broker flatten). Real brokers also auto square-off MIS positions, from about 15:05 "
                      "(F&O stocks) to 15:20, and charge a fee: keep flat_by before that." % s["flat_by"])
     lines.append("")
-    lines.append("Next: trader-risk checks it, then trader-broker asks you yes or no.")
+    lines.append("Next: trader-risk checks it, then trader-broker places it.")
     lines.append("Education and tooling, not financial advice.")
     return "\n".join(lines)
 
@@ -901,7 +897,7 @@ def report(result, orders, source=""):
     lines.append("")
     lines.append("These buys have no stop. trader-risk blocks them while \"require_stop\" is true and applies "
                  "your day-trade limits to every buy.")
-    lines.append("Next: trader-risk checks every order, then trader-broker asks you yes or no for each one.")
+    lines.append("Next: trader-risk checks every order, then trader-broker places each one.")
     lines.append("Education and tooling, not financial advice.")
     return "\n".join(lines)
 
@@ -916,10 +912,7 @@ def write_orders(path, orders, cfg, source="", now_utc=None):
         "created_by": "trader-budget",
         "created_at": utc_iso(now_utc),
         "status": "proposed",
-        "paper": True,
-        "note": ("Proposals only. Nothing is recorded until trader-risk passes each order "
-                 "and you say yes to it in the chat. This pack trades on paper only: "
-                 "nothing is ever sent to a broker."),
+        "note": "Proposals only. Nothing is placed until trader-risk passes each order.",
         "source": source,
         "orders": orders,
     }

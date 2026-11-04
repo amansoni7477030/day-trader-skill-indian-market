@@ -69,7 +69,7 @@ class Repo(unittest.TestCase):
             _, text = frontmatter(os.path.join(ROOT, s, "SKILL.md"))
             low = " ".join(text.lower().split())
             self.assertIn("not financial advice", low, s)
-            self.assertIn("yes", low, s)
+            self.assertIn("an order is placed only when trader-risk passed that exact order today", low, s)
 
     def test_plugin_manifest_points_at_the_root_skills(self):
         plugin = read_json(".claude-plugin", "plugin.json")
@@ -140,13 +140,19 @@ class Repo(unittest.TestCase):
         self.assertIs(cfg.get("allow_short", False), False)
         self.assertIs(cfg.get("allow_margin", False), False)
 
-    def test_paper_trading_is_the_default(self):
-        with open(os.path.join(ROOT, "trader-budget", "config.example.json")) as fh:
-            cfg = json.load(fh)
-        self.assertIs(cfg["paper"], True)
-        self.assertEqual(cfg["budget"], 100000)  # the paper account starts with one lakh rupees
-        self.assertNotIn("broker", cfg)
+    def test_the_account_starts_with_one_lakh_and_there_is_no_mode_to_switch(self):
+        cfg = read_json("trader-budget", "config.example.json")
+        self.assertEqual(cfg["budget"], 100000)  # the account starts with one lakh rupees
+        for gone in ("broker", "paper"):
+            self.assertNotIn(gone, cfg)
         self.assertIs(cfg.get("allow_options", False), False)
+
+    def test_the_skills_do_not_talk_about_paper_trading_or_ask_for_a_yes(self):
+        # an order that passes trader-risk goes through on its own, and the skills name no "paper" mode
+        for s in SKILLS:
+            low = " ".join(read_text(s, "SKILL.md").lower().split())
+            for bad in ("paper", "your yes", "explicit yes", "yes or no", "say yes"):
+                self.assertNotIn(bad, low, "%s says %r" % (s, bad))
 
     def test_author_and_website_are_aman_soni_and_toolrux(self):
         plugin = read_json(".claude-plugin", "plugin.json")
@@ -156,8 +162,7 @@ class Repo(unittest.TestCase):
         self.assertEqual(plugin["homepage"], REPO_URL)
         self.assertEqual(plugin["repository"], REPO_URL)
         self.assertEqual(plugin["license"], "MIT")
-        self.assertIn("paper-trading", plugin["keywords"])
-        self.assertNotIn("dry-run", plugin["keywords"])
+        self.assertFalse([k for k in plugin["keywords"] if "paper" in k or "dry-run" in k])
 
     def test_license_keeps_the_original_notice(self):
         text = read_text("LICENSE")
@@ -186,10 +191,10 @@ class Repo(unittest.TestCase):
                     for bad in ("os.environ", "os.getenv", "dotenv"):
                         self.assertNotIn(bad, src, "%s/%s" % (s, f))
 
-    def test_readme_is_the_paper_trading_edition_with_architecture_diagrams(self):
+    def test_readme_has_the_credits_the_install_steps_and_architecture_diagrams(self):
         readme = read_text("README.md")
         low = " ".join(readme.lower().split())
-        for text in ("aman soni", "https://toolrux.com", "jake schincariol", "paper trading only",
+        for text in ("aman soni", "https://toolrux.com", "jake schincariol", "nothing to confirm",
                      "\u20b91,00,000", "python3 -m venv .venv", "pip install -r requirements.txt"):
             self.assertIn(text, low, text)
         for gone in ("Kite", "Allow once", "Needs approval", "Always allow", "static IP", "Going live"):

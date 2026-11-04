@@ -2,8 +2,7 @@
   "created_by": "trader-budget",
   "created_at": "2026-10-19T04:10:00Z",
   "status": "proposed",
-  "paper": true,
-  "note": "Proposals only. Nothing is recorded until trader-risk passes each order and you say yes to it in the chat. This pack trades on paper only: nothing is ever sent to a broker.",
+  "note": "Proposals only. Nothing is placed until trader-risk passes each order.",
   "source": "trader/plan.json (RELIANCE orb 2026-10-19)",
   "orders": [
     {

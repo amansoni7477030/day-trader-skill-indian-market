@@ -4,7 +4,7 @@ venv/
 __pycache__/
 *.pyc
 
-# The tools write their working files (plans, orders, the paper account) to ./trader/
+# The tools write their working files (plans, orders, the account) to ./trader/
 /trader/
 
 # Secrets: nothing in this pack reads one, but never commit one

@@ -185,5 +185,4 @@ including a bank-like symbol whose gross and operating margin columns print `-`.
 ## Safety
 
 Education and tooling, not financial advice. This skill only reads numbers.
-Nothing records a paper trade except `/trader-broker`, after `/trader-risk` passes
-and the user types an explicit yes for that order.
+Nothing is placed except by `/trader-broker`, after `/trader-risk` passes.

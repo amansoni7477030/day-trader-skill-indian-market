@@ -111,7 +111,7 @@ class TheCanonicalTrade(unittest.TestCase):
         self.assertEqual(res["cash_after"], 26352.40)          # 1,00,000 minus 73,647.60
         self.assertEqual(res["date"], TODAY)
         self.assertEqual(res["now_ist"], "2026-10-19 09:40")
-        self.assertIs(res["paper"], True)
+        self.assertNotIn("paper", res)
 
     def test_the_keys_trader_broker_reads_are_there(self):
         res = check.check([reliance()], cfg(), now=at(NOW))
@@ -757,15 +757,14 @@ class WeightsChecks(unittest.TestCase):
         self.assertEqual(verdicts(check.check([buy("ITC", 5)], split(), prices=PRICES, state=declined, today=TODAY)),
                          ["PASS"])
 
-    def test_paper_false_is_refused_and_the_default_account_is_one_lakh(self):
-        with self.assertRaises(check.RiskError) as cm:
-            check.check([buy("ITC", 5)], split(paper=False), prices=PRICES, now=at(NOW))
-        self.assertIn("this pack trades on paper only (no broker is connected)", str(cm.exception))
+    def test_the_default_account_is_one_lakh_and_a_leftover_paper_key_is_ignored(self):
         self.assertEqual(check.DEFAULTS["budget"], 100000)
-        no_budget = {k: v for k, v in split().items() if k != "budget"}      # a fresh paper account: 1,00,000
+        self.assertNotIn("paper", check.DEFAULTS)
+        no_budget = {k: v for k, v in split().items() if k != "budget"}      # a fresh account: 1,00,000
         res = check.check([buy("ITC", 5)], no_budget, prices=PRICES, now=at(NOW))
         self.assertAlmostEqual(res["cash_after"], 97947.25, places=2)       # 1,00,000 less 5 x 410.55
-        self.assertNotIn("LIVE", " ".join(res["warnings"]))
+        old = check.check([buy("ITC", 5)], split(paper=False), prices=PRICES, now=at(NOW))
+        self.assertEqual(verdicts(old), ["PASS"])                            # no mode to switch: nothing is refused
 
 
 class Cli(unittest.TestCase):

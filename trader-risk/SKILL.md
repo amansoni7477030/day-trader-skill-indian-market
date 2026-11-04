@@ -2,7 +2,7 @@
 name: trader-risk
 description: >-
   Risk Manager. Checks every trade against your limits and stops anything
-  over them, before it can be recorded as a paper trade, for Indian (NSE) day trades in
+  over them, before it can be placed, for Indian (NSE) day trades in
   rupees. For a day trade: a stop is required, the loss at the stop must fit
   your max loss per trade (measured from the higher of the plan's entry and a
   fresh price), reward:risk must meet your minimum, the day's total risk must
@@ -15,7 +15,7 @@ description: >-
   bracket orders,
   duplicates and a daily order limit. Getting out is never blocked by a day
   limit. Prints PASS or BLOCK with the reason and records the verdicts so
-  trader-broker only shows an order that passed. Use when the user says
+  trader-broker only places an order that passed. Use when the user says
   "check my order", "is this safe", "risk check", "does this break my
   rules", "can I take this trade", "how much have I risked today", or before
   /trader-broker, always.
@@ -24,10 +24,10 @@ argument-hint: "[path to orders.json]"
 
 # trader-risk
 
-The Risk Manager is the gate between a proposal and the paper account. Every order
+The Risk Manager is the gate between a proposal and the account. Every order
 written by trader-budget or trader-broker's flatten passes through it. A
-BLOCK is final for that order: it does not go to the user for a yes, and it
-is never recorded as a paper trade. Most people who day trade lose money. These limits
+BLOCK is final for that order: it is never placed. A PASS is all trader-broker
+needs to place it. Most people who day trade lose money. These limits
 keep each loss and each day's losses small. They do not make a trade win.
 This is education and tooling, not financial advice.
 
@@ -175,11 +175,13 @@ product, a product other than MIS, a holiday list that does not cover the year.
 4. If the order changes in any way, run the check again. trader-broker matches
    each order to its verdict by fingerprint, so an edited order is not ready
    until it passes again, and a verdict from yesterday does not count today.
+5. Every order that passed goes on to `/trader-broker`, which places it. No
+   confirmation is needed.
 
 ## Example: the reliance trade (synthetic data)
 
 The RELIANCE bracket from trader-budget at 09:40 on Monday 2026-10-19 (built
-from synthetic bars, not real market data), on a fresh ₹1,00,000 dry-run
+from synthetic bars, not real market data), on a fresh ₹1,00,000
 account with the example config:
 
 ```
@@ -189,7 +191,7 @@ PASS  #1 buy RELIANCE 52 shares, entry
           max loss ₹514.80 (limit ₹1,000), reward:risk 1.00 (min 1)
           today before this: 0 of 3 trades, ₹0 of ₹3,000 daily loss
 
-1 passed, 0 blocked at 2026-10-19 09:40 IST. Cash after the passed orders: ₹26,352.40 (paper: dry run).
+1 passed, 0 blocked at 2026-10-19 09:40 IST. Cash after the passed orders: ₹26,352.40.
 ```
 
 One more share and it is blocked, by the position cap (75% of ₹1,00,000 is
@@ -216,7 +218,7 @@ the 14:30 entry cutoff: it is an exit.
 
 ## Rules
 
-- A PASS only means the order is allowed to be shown to the user. It is not a yes.
+- A PASS only means the order is allowed to be placed. It is a rules check, not a recommendation.
 - Every number comes from the config, the order, the portfolio, the prices or the trade log.
 - Free Yahoo prices are unofficial and can lag; a real fill can differ, and a
   stop can fill worse than its price in a fast market. A stock at its lower circuit may not let
@@ -226,18 +228,14 @@ the 14:30 entry cutoff: it is an exit.
 
 It never records a trade, never edits an order to make it pass, never
 loosens a limit, never blocks a sell that only gets the user out, and never
-treats a PASS as the user's yes.
+treats a PASS as a recommendation.
 
 ## Safety
 
 - Education and tooling, not financial advice. A PASS is a rules check, not a recommendation.
-- Paper trading only: no broker is connected and nothing in this pack can place a real order. Every
-  trade is a simulation in a paper account that starts with ₹1,00,000.
-- A paper trade is recorded only when two things hold: trader-risk passed that exact order today, and
-  the user typed an explicit yes for that one order in the chat.
-- Long only, no F&O, margin, short selling or leverage unless the config allows it and the user confirms.
-  An MIS (intraday) order is leverage in real trading, so the pack counts it as margin when it costs more
-  than the cash in the paper account.
+- An order is placed only when trader-risk passed that exact order today. A BLOCK is final: fix the order
+  or your rules, never the check.
+- Long only, no F&O, margin, short selling or leverage unless the config allows it. An MIS (intraday)
+  order is leverage, so the pack counts it as margin when it costs more than the cash in the account.
 - No logins, API keys or passwords are used, and none belong in the chat.
-- Intraday gains and losses have tax consequences in India: talk to a chartered accountant if you ever
-  trade for real.
+- Intraday gains and losses have tax consequences in India: talk to a chartered accountant.

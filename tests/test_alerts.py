@@ -571,8 +571,8 @@ class Cli(unittest.TestCase):
         self.assertIn("continuous trading of F&O stocks ends at 15:15", text)
         self.assertIn("not an order", text)
         self.assertIn("India has no bracket orders", text)                 # the alerts are the only watchers
-        self.assertIn("in paper trading nothing sits at a broker", text)
-        self.assertIn("Check your paper portfolio", text)
+        self.assertIn("nothing sits at a broker here", text)
+        self.assertIn("Check your portfolio", text)
         self.assertNotIn("already sit", text)
         self.assertEqual(self.check("2026-10-19 15:12")[0], 1)
         code, text, _ = self.check("2026-10-20 10:00")                     # Dussehra

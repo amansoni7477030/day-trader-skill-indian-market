@@ -25,8 +25,8 @@ argument-hint: "[budget in rupees]"
 The Budget Manager turns a plan ("buy RELIANCE at 1416.30, stop 1406.40") into
 an exact order ("buy 52 shares"), inside rules the user sets once. The stop
 decides the size: the further away the stop, the fewer shares. It writes a
-proposal only. trader-risk checks it and trader-broker asks the user yes or
-no. Day trading loses most people money. Sizing to a max loss keeps each
+proposal only. trader-risk checks it and trader-broker places it. Day trading
+loses most people money. Sizing to a max loss keeps each
 loss small; it does not make a trade win. This is education and tooling,
 not financial advice.
 
@@ -53,7 +53,7 @@ refused: make a new one with trader-exit.
 | `trader/config.json` | the rules (start from `config.example.json` in this folder) |
 | `trader/plan.json` | the trade: entry, stop, target, setup, flat-by time (trader-exit writes it) |
 | `trader/prices.json` | optional: a fresh price above the plan's entry means a bigger risk (trader-alerts writes it) |
-| `trader/portfolio.json` | optional: the paper account; its cash caps the size (trader-broker keeps it) |
+| `trader/portfolio.json` | optional: the account; its cash caps the size (trader-broker keeps it) |
 | `trader/orders.json` | the one proposed bracket order it writes with `--write` |
 
 ## Step 1: set the rules once
@@ -61,8 +61,8 @@ refused: make a new one with trader-exit.
 If `trader/config.json` does not exist, copy `config.example.json` into
 `trader/config.json` and ask the user for each value in plain words:
 
-- **budget**: the paper account's starting cash, in rupees (default ₹1,00,000). Even on paper, use an
-  amount the user could afford to lose if they ever trade for real.
+- **budget**: the account's starting cash, in rupees (default ₹1,00,000). Use an amount the user could
+  afford to lose.
 - **cash_buffer_pct**: how much always stays in cash (default 10).
 - **max_loss_per_trade_inr**: the most one trade may lose if the stop fills at the stop (default ₹1,000 on a ₹1,00,000 budget).
 - **max_position_pct**, **max_order_inr**, **min_order_inr**: the biggest position (75% of the
@@ -76,17 +76,14 @@ If `trader/config.json` does not exist, copy `config.example.json` into
   neighbouring tick near a band edge.
 - **blocked**: tickers they never want to trade.
 - **brokerage_pct** (0.03) and **brokerage_per_order_inr** (20): only used for the charges estimate.
-- **paper**: keep it `true` (the default). This pack trades on paper only, so `false` is refused with
-  "this pack trades on paper only". There is no broker setting.
 
 The times 14:30 and 15:00 are defaults, not rules of the exchange. Since
 3 August 2026 a stock with F&O contracts stops trading continuously at 15:15
 and its stop-loss orders are cancelled then, before the closing auction, and
 real brokers auto square-off intraday (MIS) positions from about 15:05 to 15:20
 (it varies by broker and by stock) and charge a fee for it. So entries stop at
-14:30 and "flat by" comes well before all of that. If the user trades for real
-later, ask for their broker's square-off time and adjust `no_entries_after`
-and `flat_by`.
+14:30 and "flat by" comes well before all of that. Ask the user for their broker's
+square-off time and adjust `no_entries_after` and `flat_by` if it is earlier.
 
 ## Step 2: size the trade
 
@@ -138,10 +135,10 @@ estimate to check against their broker's charge calculator. Then hand over to
 A stop-loss and a target are two separate orders with no
 one-cancels-the-other between them, and this pack records them that way. So
 `"order_class": "bracket"` in `orders.json` means a plan with three parts: the
-ENTRY order (what the user says yes to), then a STOP-LOSS order (sell, trigger
+ENTRY order, then a STOP-LOSS order (sell, trigger
 at `stop_loss_stop_price`) and a TARGET order (sell, limit at
-`take_profit_limit_price`). trader-broker records the two legs only after the
-entry fills, each as its own ticket with its own yes. When one leg fills, the
+`take_profit_limit_price`). trader-broker places the two legs only after the
+entry fills, each as its own ticket. When one leg fills, the
 other is skipped: nothing does it automatically. The max loss at the stop is
 measured from the stop-loss leg.
 
@@ -230,26 +227,22 @@ no tax advice.
 - Never size money the user has not said is for this. Ask for the budget and the max loss.
 - Every number comes from the config, the plan or the prices. Nothing is guessed.
 - No projections: never say what a trade will make. A target is a plan, not a forecast.
-- Free Yahoo prices are unofficial and can lag. Paper fills are simulated: a real fill can differ.
+- Free Yahoo prices are unofficial and can lag. Fills are simulated: a real fill can differ.
 - Holiday and fee figures are from public sources and can change: verify them on nseindia.com and
   with your broker.
 
 ## What it never does
 
-It never places, approves or schedules an order, never raises a limit on
+It never places or schedules an order, never raises a limit on
 its own, never shrinks a stop to fit more shares, never changes the share
 count for charges, and never sizes options, margin or short positions.
 
 ## Safety
 
 - Education and tooling, not financial advice. A PASS is a rules check, not a recommendation.
-- Paper trading only: no broker is connected and nothing in this pack can place a real order. Every
-  trade is a simulation in a paper account that starts with ₹1,00,000.
-- A paper trade is recorded only when two things hold: trader-risk passed that exact order today, and
-  the user typed an explicit yes for that one order in the chat.
-- Long only, no F&O, margin, short selling or leverage unless the config allows it and the user confirms.
-  An MIS (intraday) order is leverage in real trading, so the pack counts it as margin when it costs more
-  than the cash in the paper account.
+- An order is placed only when trader-risk passed that exact order today. A BLOCK is final: fix the order
+  or your rules, never the check.
+- Long only, no F&O, margin, short selling or leverage unless the config allows it. An MIS (intraday)
+  order is leverage, so the pack counts it as margin when it costs more than the cash in the account.
 - No logins, API keys or passwords are used, and none belong in the chat.
-- Intraday gains and losses have tax consequences in India: talk to a chartered accountant if you ever
-  trade for real.
+- Intraday gains and losses have tax consequences in India: talk to a chartered accountant.

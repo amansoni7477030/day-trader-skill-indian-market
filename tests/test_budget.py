@@ -33,13 +33,13 @@ CONTRACT_CFG = {
     "max_loss_per_trade_inr": 1000, "max_daily_loss_inr": 3000, "max_trades_per_day": 3, "max_orders_per_day": 10,
     "min_reward_risk": 1.0, "require_stop": True,
     "no_entries_before": "09:30", "no_entries_after": "14:30", "flat_by": "15:00",
-    "tick_size": None, "fractional": False, "paper": True, "blocked": [],
+    "tick_size": None, "fractional": False, "blocked": [],
     "allow_options": False, "allow_margin": False, "allow_short": False,
     "brokerage_pct": 0.03, "brokerage_per_order_inr": 20,
 }
 # the rules for the weights-mode tests: a 25% cap per stock
 SPLIT_CFG = {"budget": 100000, "cash_buffer_pct": 10, "max_position_pct": 25, "max_order_inr": 40000,
-             "min_order_inr": 100, "paper": True, "blocked": []}
+             "min_order_inr": 100, "blocked": []}
 
 
 def cfg(**over):
@@ -165,7 +165,8 @@ class TheCanonicalTrade(unittest.TestCase):
             with open(out, encoding="utf-8") as fh:
                 doc = json.load(fh)
             self.assertEqual(doc["status"], "proposed")
-            self.assertIs(doc["paper"], True)
+            self.assertNotIn("paper", doc)
+            self.assertEqual(doc["note"], "Proposals only. Nothing is placed until trader-risk passes each order.")
             self.assertEqual(doc["created_at"], "2026-10-19T04:10:00Z")        # 09:40 IST
             self.assertEqual(len(doc["orders"]), 1)
             self.assertEqual(doc["orders"][0]["plan"]["max_loss"], 514.8)

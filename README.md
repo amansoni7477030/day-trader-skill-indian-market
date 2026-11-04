@@ -2,9 +2,10 @@
 
 11 Claude skills for day trading the Indian market (NSE): scan thousands of charts, track breaking news, time every entry and exit, and replay every outcome before you risk a rupee.
 
-**Paper trading only.** No broker is connected and nothing in this pack can place
-a real order. Every trade is a simulation in a paper account that starts with
-₹1,00,000 (1 lakh), and even a paper trade is recorded only after you say yes.
+**No broker needed.** Orders are placed in a simulated account that starts with
+₹1,00,000 (1 lakh), and nothing is ever sent to an exchange or a broker. Every
+order has to pass `/trader-risk` first, and then it goes through on its own:
+there is nothing to confirm.
 
 India edition by [Aman Soni](https://toolrux.com) | [toolrux.com](https://toolrux.com) | MIT license
 
@@ -22,8 +23,8 @@ past day the same setup fired, and tells you the honest odds.
 
 > **India edition.** This is the Indian-market adaptation of the Day Trader
 > skill (the Trader skill v2) by Jake Schincariol, who made the original for
-> US stocks under the MIT license. The India edition and its paper-trading
-> desk are by Aman Soni ([toolrux.com](https://toolrux.com)). Everything
+> US stocks under the MIT license. The India edition is by Aman Soni
+> ([toolrux.com](https://toolrux.com)). Everything
 > market-specific was rebuilt for India: NSE hours (9:15 AM to 3:30 PM IST) and
 > the closing auction that stocks with F&O contracts have gone through since
 > 3 August 2026, NSE's own holiday calendar, rupees with lakh and crore
@@ -39,7 +40,7 @@ past day the same setup fired, and tells you the honest odds.
 - [Install](#install)
 - [The eleven](#the-eleven)
 - [How to use it](#how-to-use-it)
-- [The paper account](#the-paper-account)
+- [The account](#the-account)
 - [Configuration](#configuration)
 - [What changed for India](#what-changed-for-india)
 - [The tools](#the-tools)
@@ -72,10 +73,10 @@ flowchart LR
         EX["/trader-exit<br/>Exit Planner"]
         TM["/trader-timemachine<br/>Time Machine"]
     end
-    subgraph S3["3. Size, check, confirm"]
+    subgraph S3["3. Size, check, place"]
         BU["/trader-budget<br/>Budget Manager"]
         RK{"/trader-risk<br/>Risk Manager"}
-        BR["/trader-broker<br/>Paper Trading Desk"]
+        BR["/trader-broker<br/>Order Executor"]
     end
 
     DL["/trader-deals<br/>Deals Tracker"] -.->|"names worth a look"| SC
@@ -83,8 +84,8 @@ flowchart LR
 
     SC --> NW --> EN --> EX --> TM --> BU --> RK
     RK -->|"PASS"| BR
-    RK -->|"BLOCK"| NO(["no paper trade"])
-    BR -->|"your yes"| PA[("Paper account<br/>starts at ₹1,00,000")]
+    RK -->|"BLOCK"| NO(["not placed"])
+    BR -->|"places it"| PA[("Account<br/>starts at ₹1,00,000")]
     PA --> AL["/trader-alerts<br/>Price Alerts"]
     AL -.->|"stop, target or flat-by hit: record the exit"| BR
 ```
@@ -119,7 +120,7 @@ flowchart TB
     Tools -->|"result in plain words"| You
 ```
 
-### Two gates before every paper trade
+### One gate before every order
 
 ```mermaid
 sequenceDiagram
@@ -127,8 +128,8 @@ sequenceDiagram
     actor You
     participant Budget as trader-budget
     participant Risk as trader-risk
-    participant Desk as trader-broker (paper desk)
-    participant Acct as Paper account
+    participant Desk as trader-broker
+    participant Acct as Account
 
     Budget->>Risk: orders.json, one bracket plan
     Risk->>Risk: format, stop, max loss, reward:risk, daily limits, entry window, cash
@@ -136,18 +137,16 @@ sequenceDiagram
         Risk-->>You: BLOCK with the reason (final for that order)
     else every check passes
         Risk->>Desk: PASS, saved with a fingerprint of that exact order
-        Desk->>You: ticket in plain words, marked PAPER TRADE
-        You->>Desk: yes, for this one order
-        Desk->>Desk: gate 2, the reply must be an explicit yes for this order
-        Desk->>Acct: record the simulated fill, update cash and shares
-        Desk-->>You: recorded, max loss logged for the daily limit
+        Desk->>Desk: match the order to its PASS, an edited order has none
+        Desk->>Acct: place it, record the simulated fill, update cash and shares
+        Desk-->>You: placed, with the fill price, the stop, the target and the max loss
     end
 ```
 
-Gate 1 is the Risk Manager's PASS for that exact order. It is matched by a
+The gate is the Risk Manager's PASS for that exact order. It is matched by a
 fingerprint of the order, so an order that changes in any way has to be checked
-again. Gate 2 is your yes for that one order in the chat: "sure" and "yes to
-all" are not accepted. A BLOCK is final.
+again. A BLOCK is final, and after a PASS there is nothing to confirm: the order
+is placed on its own.
 
 ### The life of an order
 
@@ -156,20 +155,16 @@ stateDiagram-v2
     [*] --> Proposed: trader-budget or flatten writes orders.json
     Proposed --> Blocked: trader-risk BLOCK, final
     Proposed --> Ready: trader-risk PASS
-    Ready --> Declined: you say no
-    Ready --> Approved: you say yes to that order
-    Approved --> Placed: paper fill recorded
-    Approved --> Failed: it would not have filled
-    Placed --> Proposed: ticket.py exits writes the stop-loss and target legs
-    Placed --> [*]: sell recorded, position flat
+    Ready --> Placed: ticket.py place
+    Placed --> Filled: the fill is recorded in the account
+    Filled --> [*]
+    Filled --> Proposed: after an entry, ticket.py exits writes the stop-loss and target legs
     Blocked --> [*]
-    Declined --> [*]
-    Failed --> [*]
 ```
 
 A stop-loss and a target are two separate orders with no
 one-cancels-the-other between them. So after the entry fills, `ticket.py exits`
-writes them as two new orders that go through the same two gates. When one leg
+writes them as two new orders that go through the same gate. When one leg
 fills you record that sell and skip the other.
 
 ### Data flow through `trader/`
@@ -192,8 +187,8 @@ flowchart LR
     check --> riskf[("state/risk.json")]
     orders --> ticket["ticket.py"]
     riskf --> ticket
-    ticket --> brokerf[("state/broker.json<br/>every yes, fill and max loss")]
-    ticket --> port[("portfolio.json<br/>the paper account")]
+    ticket --> brokerf[("state/broker.json<br/>every trade, fill and max loss")]
+    ticket --> port[("portfolio.json<br/>the account")]
     port --> size
     port --> check
     brokerf --> check
@@ -323,7 +318,7 @@ file: nothing in this pack needs a secret.
 | `/trader-timemachine` | Time Machine | Replays every possible outcome of a trade before you risk a rupee: 10,000 simulated sessions plus every past time the setup fired. |
 | `/trader-risk` | Risk Manager | Checks every trade against your limits and stops anything over them. |
 | `/trader-budget` | Budget Manager | Sizes every position to your budget and your max loss per trade. |
-| `/trader-broker` | Paper Trading Desk | Records approved orders as simulated trades in a ₹1,00,000 paper account, never without your yes. |
+| `/trader-broker` | Order Executor | Places the orders that passed `/trader-risk` in a ₹1,00,000 account and records the fills. |
 | `/trader-alerts` | Price Alerts | Rings when a price, a stop or the opening bell hits. |
 | `/trader-analyst` | Earnings Analyst | Reads quarterly results and sums up what changed. |
 | `/trader-deals` | Deals Tracker | Reads NSE's bulk and block deals the evening they are published. |
@@ -341,7 +336,7 @@ what the last one wrote (see the diagrams above). A session, in order:
 /trader-timemachine   replay it 10,000 times
 /trader-budget        size it, I risk at most ₹1,000 a trade
 /trader-risk          check it
-/trader-broker        paper trade it
+/trader-broker        place it
 /trader-alerts        ring me on the stop, the target and at 3:00 PM
 ```
 
@@ -386,14 +381,13 @@ The steps and the arithmetic are exactly what the tools do on real data.
 7. **`/trader-risk`** checks it against your limits: the max loss, the daily
    loss limit, trades per day, reward to risk, the entry window, position
    size and cash. PASS or BLOCK, with the reason.
-8. **`/trader-broker`** shows you the ticket in plain words, marked PAPER
-   TRADE. You type yes for that exact order. The yes is recorded word for word
-   and you record the simulated fill at a price you can defend: 52 shares at
-   ₹1,416.30 is ₹73,647.60, so ₹26,352.40 stays in the paper account. Nothing is
-   sent anywhere. There are no bracket orders and no one-cancels-the-other, so
-   the entry comes first. After it fills, the stop-loss and the target are two
-   more tickets, each with its own risk check and its own yes, and when one
-   fills you skip the other.
+8. **`/trader-broker`** shows the ticket in plain words and places it. There is
+   nothing to confirm: `/trader-risk` already passed that exact order. The fill
+   is recorded at a price you can defend: 52 shares at ₹1,416.30 is ₹73,647.60,
+   so ₹26,352.40 stays in the account. Nothing is sent anywhere. There are no
+   bracket orders and no one-cancels-the-other, so the entry comes first. After
+   it fills, the stop-loss and the target are two more tickets, each with its
+   own risk check, and when one fills you skip the other.
 9. **`/trader-alerts`** rings on the stop, the target and at 3:00 PM, so you can
    record the exit and flatten whatever is still open before the real market's
    own 3:05 to 3:20 PM auto square-off.
@@ -406,26 +400,23 @@ was recorded. That day's Yahoo chart also holds a 3:25 PM closing-auction bar
 that closed at ₹1,307.90, above the range high. A tool that read it would call
 a breakout at 3:30 PM; this pack never reads bars from 3:15 PM on.
 
-## The paper account
+## The account
 
 - **It starts with ₹1,00,000** (1 lakh): the `budget` in `trader/config.json`,
   or 100000 when there is no config. The first recorded fill creates
   `trader/portfolio.json` with that cash (and the shares, as cost-basis lots).
   `/trader-budget` and `/trader-risk` read the same account.
-- **Fills are simulated.** After your yes, the fill is recorded at a price you
-  can defend: the limit price for a limit order, or the latest quote for a
-  market order. A real fill can be worse: a market order slips, a stop gaps,
-  and a stock at its circuit limit may not trade at all. Paper results flatter
-  real ones.
-- **No charges come out of the paper cash.** `/trader-budget` prints an
-  estimate of the round-trip charges for information.
-- **Nothing triggers a paper stop for you.** `/trader-alerts` rings when the
-  stop, the target or the flat-by time is hit, and you record the exit.
+- **Fills are simulated.** The fill is recorded at a price you can defend: the
+  limit price for a limit order, or the latest quote for a market order. A real
+  fill can be worse: a market order slips, a stop gaps, and a stock at its
+  circuit limit may not trade at all. Simulated results flatter real ones.
+- **No charges come out of the cash.** `/trader-budget` prints an estimate of
+  the round-trip charges for information.
+- **Nothing triggers a stop for you.** `/trader-alerts` rings when the stop,
+  the target or the flat-by time is hit, and you record the exit.
 - **Start over** by deleting `trader/portfolio.json` and
   `trader/state/broker.json`. Change the starting amount by setting `budget`
   before the first fill.
-- **`"paper": false` is refused.** `/trader-broker`, `/trader-risk` and
-  `/trader-budget` stop with "this pack trades on paper only".
 
 ## Configuration
 
@@ -434,7 +425,7 @@ you want (`/trader-budget` offers to do it for you). The defaults:
 
 | key | default | what it does |
 | --- | --- | --- |
-| `budget` | 100000 | the paper account's starting cash, in rupees |
+| `budget` | 100000 | the account's starting cash, in rupees |
 | `cash_buffer_pct` | 10 | the share of the budget that always stays in cash |
 | `max_loss_per_trade_inr` | 1000 | the most one trade may lose if the stop fills at the stop |
 | `max_position_pct` | 75 | the biggest position, as a share of the budget |
@@ -447,7 +438,6 @@ you want (`/trader-budget` offers to do it for you). The defaults:
 | `tick_size` | null | null means NSE's tick for each price; a number forces one tick |
 | `blocked` | [] | tickers you never trade |
 | `allow_options`, `allow_margin`, `allow_short` | false | F&O, margin and short sales stay off |
-| `paper` | true | the only mode: `false` is refused |
 | `brokerage_pct`, `brokerage_per_order_inr` | 0.03, 20 | used only for the charges estimate |
 
 ## What changed for India
@@ -463,8 +453,8 @@ you want (`/trader-budget` offers to do it for you). The defaults:
 | Entry window | 9:45 AM to 3:30 PM, flat by 3:55 PM | 9:30 AM to 2:30 PM, flat by 3:00 PM (real brokers square off MIS from about 3:05 to 3:20 PM) |
 | Day-trade rule | pattern day trader guard | none in India: removed |
 | Orders | Alpaca bracket order | entry, then stop-loss and target as separate tickets (no OCO) |
-| Broker | Alpaca | none: paper trading only, nothing is sent anywhere |
-| Account | Alpaca paper account | a local paper account in `trader/portfolio.json`, ₹1,00,000 to start |
+| Broker | Alpaca | none: nothing is sent to a broker; the account is `trader/portfolio.json`, ₹1,00,000 to start |
+| Confirmation | a yes for every order | none: an order that passes `/trader-risk` is placed |
 | News and filings | SEC EDGAR 8-K | NSE corporate announcements, Google News (en-IN) and Yahoo's price move; results on the NSE and BSE pages |
 | Earnings | SEC XBRL | Yahoo quarterly results, ₹ crore, Indian fiscal year (Q1 FY27 is April to June 2026) |
 | Smart money | US Congress trades | NSE bulk and block deals (block deals start at ₹25 crore) |
@@ -524,16 +514,15 @@ them lose money, and intraday trading is where it is hardest. You can lose
 money. Decide for yourself, and talk to a SEBI-registered adviser if you need
 advice.
 
-**Paper trading only, and no trade is recorded until you say yes.** No broker
-is connected and nothing here logs in to anything, so there is no key, password
-or token to keep safe. Only `/trader-broker` can record a paper trade, and only
-after `/trader-risk` passes that exact order and you type yes for it in the
-chat. No F&O, margin, short selling or leverage unless you turn them on.
+**No broker, and nothing to confirm.** Nothing here connects to a broker or
+logs in to anything, so there is no key, password or token to keep safe, and no
+order ever leaves your machine. Only `/trader-broker` places an order, and only
+after `/trader-risk` passes that exact order; after that it goes through on its
+own. No F&O, margin, short selling or leverage unless you turn them on.
 Remember that an MIS (intraday) order is leverage a real broker gives you: this
 pack counts it as margin whenever the order costs more than the cash in the
-paper account. A paper account is not a promise of what real trading does: fills
-are simulated, and a real market order slips, a stop gaps and a circuit limit
-can lock you in.
+account. Fills are simulated, so they can look better than real ones: a real
+market order slips, a stop gaps and a circuit limit can lock you in.
 
 **The Time Machine is a simulation, not a prediction.** It is built from the
 stock's own last 60 trading sessions of 5-minute bars, about three months
@@ -593,7 +582,7 @@ trader-exit/        SKILL.md, exit.py
 trader-timemachine/ SKILL.md, timemachine.py
 trader-risk/        SKILL.md, check.py
 trader-budget/      SKILL.md, size.py, config.example.json, targets.example.json
-trader-broker/      SKILL.md, ticket.py   (the paper trading desk)
+trader-broker/      SKILL.md, ticket.py   (the order executor)
 trader-alerts/      SKILL.md, alerts.py, alerts.example.json
 trader-analyst/     SKILL.md, facts.py, metrics.example.json
 trader-deals/       SKILL.md, deals.py

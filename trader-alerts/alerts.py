@@ -33,8 +33,8 @@ the plan's day only). An above / below alert rings ONCE and then stays quiet
 until you reset it, unless the rule has "rearm": true (it re-arms when the
 price crosses back). A pct_move alert rings at most once per day.
 
-India has no bracket orders, and in paper trading nothing sits at a broker: a stop or a
-target is only a plan, so these alerts are the watchers. When one rings, record the paper
+India has no bracket orders, and nothing sits at a broker here: a stop or a
+target is only a plan, so these alerts are the watchers. When one rings, record the
 exit yourself (trader-broker). On the real exchange, stop-loss orders for stocks with F&O
 contracts are cancelled at 15:15 (closing auction), so a stop is not a safety net into the close.
 
@@ -409,7 +409,7 @@ def write_prices(path, quotes, now_utc, source):
         detail[s] = {"prev_close": q.get("prev_close"), "time": q.get("time"), "source": q.get("source"),
                      "fetched": stamp}
     doc = {"as_of": stamp, "source": source,
-           "note": ("Delayed quotes for alerts and sizing checks (rupees). Paper fills are simulated at the "
+           "note": ("Delayed quotes for alerts and sizing checks (rupees). Fills are simulated at the "
                     "price you give: a real fill can differ. detail.fetched is when each price was read."),
            "prices": prices, "detail": detail}
     _write(path, doc)
@@ -534,7 +534,7 @@ def evaluate(rules, quotes, status, state, now_utc):
                 sym = plain_symbol(r.get("symbol"))
                 if sym:
                     msg += (" If %s is still open, close it: trader-broker flatten --symbol %s builds the sell "
-                            "ticket, then trader-risk and your yes." % (sym, sym))
+                            "ticket, then trader-risk checks it and trader-broker places it." % (sym, sym))
                 rings.append({"id": rid, "symbol": sym, "message": msg})
                 rung[rid] = stamp
             continue
@@ -699,11 +699,11 @@ def cmd_check(a):
         for e in errors:
             print("error: " + e)
         if rings:
-            print("An alert is information, not an order. India has no bracket orders, and in paper trading "
-                  "nothing sits at a broker: no stop or target is placed anywhere, so these alerts are the only "
-                  "watchers. Check your paper portfolio (trader/portfolio.json) and record any exit "
-                  "(ticket.py fill). To close a position yourself: ticket.py flatten, then trader-risk and "
-                  "your yes.")
+            print("An alert is information, not an order. India has no bracket orders, and nothing sits at a "
+                  "broker here: no stop or target is placed anywhere, so these alerts are the only "
+                  "watchers. Check your portfolio (trader/portfolio.json) and record any exit "
+                  "(ticket.py fill). To close a position yourself: ticket.py flatten, then trader-risk "
+                  "and ticket.py place.")
     return 0 if rings else 1
 
 
@@ -727,7 +727,7 @@ def cmd_add(a):
         for r in new:
             print("Added %s: %s" % (r["id"], json.dumps(r)))
         print("Run alerts.py check every few minutes while the trade is open (a scheduled task or /loop). "
-              "Free quotes are delayed, and in paper trading a stop or a target only exists as a plan and an "
+              "Free quotes are delayed, and here a stop or a target only exists as a plan and an "
               "alert: these alerts matter more.")
         return 0
     if a.opening_bell:
