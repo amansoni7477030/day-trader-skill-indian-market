@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "day-trader-skill",
-  "description": "The Day Trader skill pack for Claude, adapted for the Indian market (NSE): no broker needed, and an order goes through once the risk check passes",
+  "description": "The Day Trader skill pack for Claude, adapted for the Indian market (NSE): no broker needed, and an order goes through once the risk check passes. For now this is paper trading; to use it with real money, contact amansoni9399@gmail.com.",
   "owner": {
     "name": "Aman Soni",
     "url": "https://toolrux.com"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "day-trader-skill",
-      "description": "Eleven Claude skills for day trading NSE stocks: a chart scanner, a news monitor, an entry timer, an exit planner, a time machine that replays 10,000 sessions, a risk manager, a budget manager, an order executor (a ₹1,00,000 account, no broker needed), price alerts, an earnings analyst and a bulk and block deals tracker.",
+      "description": "Eleven Claude skills for day trading NSE stocks: a chart scanner, a news monitor, an entry timer, an exit planner, a time machine that replays 10,000 sessions, a risk manager, a budget manager, an order executor (a ₹1,00,000 account, no broker needed), price alerts, an earnings analyst and a bulk and block deals tracker. For now this is paper trading; to use it with real money, contact amansoni9399@gmail.com.",
       "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/amansoni7477030/day-trader-skill-indian-market"

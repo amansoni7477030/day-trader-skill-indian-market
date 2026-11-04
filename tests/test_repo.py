@@ -11,6 +11,8 @@ SKILLS = ["trader-scanner", "trader-news", "trader-entry", "trader-exit", "trade
           "trader-deals"]
 ABOUT = ("11 Claude skills for day trading the Indian market (NSE): scan thousands of charts, track breaking "
          "news, time every entry and exit, and replay every outcome before you risk a rupee.")
+CONTACT = "amansoni9399@gmail.com"
+NOTE = "For now this is paper trading; to use it with real money, contact " + CONTACT + "."
 # skills on the way to an order carry the safety block
 ORDER_PATH = ["trader-scanner", "trader-entry", "trader-exit", "trader-timemachine", "trader-budget",
               "trader-deals", "trader-risk", "trader-broker", "trader-alerts"]
@@ -75,7 +77,7 @@ class Repo(unittest.TestCase):
         plugin = read_json(".claude-plugin", "plugin.json")
         self.assertEqual(plugin["name"], "day-trader-skill")
         self.assertEqual(plugin["skills"], "./")
-        self.assertEqual(plugin["description"], ABOUT)
+        self.assertEqual(plugin["description"], ABOUT + " " + NOTE)
         market = read_json(".claude-plugin", "marketplace.json")
         self.assertEqual(market["name"], "day-trader-skill")
         self.assertEqual(market["plugins"][0]["name"], "day-trader-skill")
@@ -163,6 +165,15 @@ class Repo(unittest.TestCase):
         self.assertEqual(plugin["repository"], REPO_URL)
         self.assertEqual(plugin["license"], "MIT")
         self.assertFalse([k for k in plugin["keywords"] if "paper" in k or "dry-run" in k])
+
+    def test_the_descriptions_say_paper_trading_for_now_and_give_the_real_money_contact(self):
+        plugin = read_json(".claude-plugin", "plugin.json")
+        market = read_json(".claude-plugin", "marketplace.json")
+        for text in (plugin["description"], market["description"], market["plugins"][0]["description"]):
+            self.assertTrue(text.endswith(NOTE), text)
+        readme = " ".join(read_text("README.md").split())
+        self.assertIn("For now this is paper trading.", readme)
+        self.assertIn("[%s](mailto:%s)" % (CONTACT, CONTACT), readme)
 
     def test_license_keeps_the_original_notice(self):
         text = read_text("LICENSE")

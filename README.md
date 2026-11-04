@@ -2,10 +2,11 @@
 
 11 Claude skills for day trading the Indian market (NSE): scan thousands of charts, track breaking news, time every entry and exit, and replay every outcome before you risk a rupee.
 
-**No broker needed.** Orders are placed in a simulated account that starts with
-₹1,00,000 (1 lakh), and nothing is ever sent to an exchange or a broker. Every
-order has to pass `/trader-risk` first, and then it goes through on its own:
-there is nothing to confirm.
+**For now this is paper trading.** Orders are placed in a simulated account that
+starts with ₹1,00,000 (1 lakh), and nothing is ever sent to an exchange or a
+broker. Every order has to pass `/trader-risk` first, and then it goes through
+on its own: there is nothing to confirm. To use it with real money, contact
+Aman Soni at [amansoni9399@gmail.com](mailto:amansoni9399@gmail.com).
 
 India edition by [Aman Soni](https://toolrux.com) | [toolrux.com](https://toolrux.com) | MIT license
 
@@ -514,7 +515,7 @@ them lose money, and intraday trading is where it is hardest. You can lose
 money. Decide for yourself, and talk to a SEBI-registered adviser if you need
 advice.
 
-**No broker, and nothing to confirm.** Nothing here connects to a broker or
+**Paper trading for now, and nothing to confirm.** Nothing here connects to a broker or
 logs in to anything, so there is no key, password or token to keep safe, and no
 order ever leaves your machine. Only `/trader-broker` places an order, and only
 after `/trader-risk` passes that exact order; after that it goes through on its
@@ -522,7 +523,9 @@ own. No F&O, margin, short selling or leverage unless you turn them on.
 Remember that an MIS (intraday) order is leverage a real broker gives you: this
 pack counts it as margin whenever the order costs more than the cash in the
 account. Fills are simulated, so they can look better than real ones: a real
-market order slips, a stop gaps and a circuit limit can lock you in.
+market order slips, a stop gaps and a circuit limit can lock you in. If you want
+to use it with real money, contact Aman Soni at
+[amansoni9399@gmail.com](mailto:amansoni9399@gmail.com).
 
 **The Time Machine is a simulation, not a prediction.** It is built from the
 stock's own last 60 trading sessions of 5-minute bars, about three months
